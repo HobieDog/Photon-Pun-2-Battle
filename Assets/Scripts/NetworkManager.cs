@@ -18,22 +18,31 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.SerializationRate = 30;
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && PhotonNetwork.IsConnected)
+            PhotonNetwork.Disconnect();
+    }
+
     public void Connect()
     {
         PhotonNetwork.ConnectUsingSettings();
-        Debug.Log("a");
     }
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("b");
         PhotonNetwork.LocalPlayer.NickName = NicknameInput.text;
         PhotonNetwork.JoinOrCreateRoom("Room", new RoomOptions { MaxPlayers = 6 }, null);
     }
 
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        DisconnectPanel.SetActive(true);
+        RespawnPanel.SetActive(false);
+    }
+
     public override void OnJoinedRoom()
     {
-        Debug.Log("c");
         DisconnectPanel.SetActive(false);
     }
 }
