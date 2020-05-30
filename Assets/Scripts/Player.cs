@@ -42,7 +42,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (photonV.IsMine)
         {
-            //← → Move
+            //← → : Move
             float h = Input.GetAxisRaw("Horizontal");
             rigid.velocity = new Vector2(4 * h, rigid.velocity.y);
 
@@ -53,11 +53,19 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             else anim.SetBool("walk", false);
 
-            // ↑ 점프, 바닥체크
+            // ↑ : Jump, Ground Check
             isGround = Physics2D.OverlapCircle((Vector2)transform.position + new Vector2(0, -0.5f), 0.07f, 1 << LayerMask.NameToLayer("Ground"));
             anim.SetBool("jump", !isGround);
-            if ((Input.GetKeyDown(KeyCode.UpArrow) && isGround) || (Input.GetKeyDown(KeyCode.Space) && isGround))
+            if (Input.GetKeyDown(KeyCode.UpArrow) && isGround)
                 photonV.RPC("JumpRPC", RpcTarget.All);
+        }
+
+        // Space : Shot
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            PhotonNetwork.Instantiate("Bullet", transform.position + new Vector3(spriteRenderer.flipX ? -0.35f : 0.35f, -0.05f, 0), Quaternion.identity)
+                .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
+            anim.SetTrigger("shot");
         }
     }
 

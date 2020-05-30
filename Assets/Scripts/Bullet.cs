@@ -1,18 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
+using Photon.Pun;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviourPunCallbacks
 {
-    // Start is called before the first frame update
+    public PhotonView photonV;
+    int dir;
+
     void Start()
     {
-        
+        Destroy(gameObject, 3.5f);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        transform.Translate(Vector3.right * 7 * Time.deltaTime * dir);
     }
+
+    [PunRPC]
+    void DirRPC(int dir) => this.dir = dir;
 }
