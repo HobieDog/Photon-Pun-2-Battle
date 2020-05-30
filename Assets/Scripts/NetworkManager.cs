@@ -10,6 +10,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public InputField NicknameInput;
     public GameObject DisconnectPanel;
     public GameObject RespawnPanel;
+    public Transform[] SpawnPoints;
 
     void Awake()
     {
@@ -56,7 +57,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void Spawn()
     {
-        PhotonNetwork.Instantiate("Player", new Vector3(Random.Range(-3f, 3f), 4, 0), Quaternion.identity);
+        int ranSpawnPoint = Random.Range(0, 5);
+        PhotonNetwork.Instantiate("Player", SpawnPoints[ranSpawnPoint].position, SpawnPoints[ranSpawnPoint].rotation);
         RespawnPanel.SetActive(false);
     }
 }

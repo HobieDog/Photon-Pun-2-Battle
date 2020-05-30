@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using Photon.Realtime;
 using Photon.Pun;
+using Cinemachine;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -36,6 +37,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         //NickName
         nickNameText.text = photonV.IsMine ? PhotonNetwork.NickName : photonV.Owner.NickName;
         nickNameText.color = photonV.IsMine ? Color.green : Color.red;
+
+        if (photonV.IsMine)
+        {
+            // Follow Cinema Camera
+            var CMcamera = GameObject.Find("CMcamera").GetComponent<CinemachineVirtualCamera>();
+            CMcamera.Follow = transform;
+            CMcamera.LookAt = transform;
+        }
     }
 
     void Update()
@@ -67,11 +76,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
             anim.SetTrigger("shot");
         }
-        //Synchronization
-        else if ((transform.position - curPos).sqrMagnitude >= 100)
-            transform.position = curPos;
-        else
-            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
+        
     }
 
     public void Hit()
