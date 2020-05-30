@@ -67,16 +67,19 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             anim.SetBool("jump", !isGround);
             if (Input.GetKeyDown(KeyCode.UpArrow) && isGround)
                 photonV.RPC("JumpRPC", RpcTarget.All);
-        }
 
-        // Space : Shot
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            PhotonNetwork.Instantiate("Bullet", transform.position + new Vector3(spriteRenderer.flipX ? -0.35f : 0.35f, -0.05f, 0), Quaternion.identity)
-                .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
-            anim.SetTrigger("shot");
+            // Space : Shot
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                PhotonNetwork.Instantiate("Bullet", transform.position + new Vector3(spriteRenderer.flipX ? -0.35f : 0.35f, -0.05f, 0), Quaternion.identity)
+                    .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
+                anim.SetTrigger("shot");
+            }
         }
-        
+        else if ((transform.position - curPos).sqrMagnitude >= 100)
+            transform.position = curPos;
+        else
+            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
     }
 
     public void Hit()
@@ -85,9 +88,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (health.fillAmount <= 0)
         {
             anim.SetTrigger("died");
-            GameObject.Find("Canvas").transform.Find("RespawnPanel").gameObject.SetActive(true);
-            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+            Invoke("Respawn", 3);
         }
+    }
+
+    void Respawn()
+    {
+        GameObject.Find("Canvas").transform.Find("RespawnPanel").gameObject.SetActive(true);
+        photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
     }
 
     //Move
@@ -106,6 +114,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     //Destroy
+    [PunRPC]
     void DestroyRPC()
     {
         Destroy(gameObject);
