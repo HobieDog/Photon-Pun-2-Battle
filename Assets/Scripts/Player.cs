@@ -67,15 +67,42 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
                 .GetComponent<PhotonView>().RPC("DirRPC", RpcTarget.All, spriteRenderer.flipX ? -1 : 1);
             anim.SetTrigger("shot");
         }
+        //Synchronization
+        else if ((transform.position - curPos).sqrMagnitude >= 100)
+            transform.position = curPos;
+        else
+            transform.position = Vector3.Lerp(transform.position, curPos, Time.deltaTime * 10);
     }
 
-    [PunRPC]
-    void FlipXRPC(float h) => spriteRenderer.flipX = h == -1;
+    public void Hit()
+    {
+        health.fillAmount -= 0.1f;
+        if (health.fillAmount <= 0)
+        {
+            anim.SetTrigger("died");
+            GameObject.Find("Canvas").transform.Find("RespawnPanel").gameObject.SetActive(true);
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
+    }
 
+    //Move
+    [PunRPC]
+    void FlipXRPC(float h)
+    {
+        spriteRenderer.flipX = h == -1;
+    }
+
+    //Jump
     [PunRPC]
     void JumpRPC()
     {
         rigid.velocity = Vector2.zero;
         rigid.AddForce(Vector2.up * 600);
+    }
+
+    //Destroy
+    void DestroyRPC()
+    {
+        Destroy(gameObject);
     }
 }

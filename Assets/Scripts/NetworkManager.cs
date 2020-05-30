@@ -44,7 +44,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         DisconnectPanel.SetActive(false);
+        StartCoroutine("DestroyBullet");
         Spawn();
+    }
+
+    IEnumerator DestroyBullet()
+    {
+        yield return new WaitForSeconds(0.2f);
+        foreach (GameObject GO in GameObject.FindGameObjectsWithTag("Bullet")) GO.GetComponent<PhotonView>().RPC("DestroyRPC", RpcTarget.All);
     }
 
     public void Spawn()

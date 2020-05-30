@@ -19,6 +19,27 @@ public class Bullet : MonoBehaviourPunCallbacks
         transform.Translate(Vector3.right * 7 * Time.deltaTime * dir);
     }
 
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.tag == "Ground")
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+
+        if (!photonV.IsMine && collider.tag == "Player" && collider.GetComponent<PhotonView>().IsMine)
+        {
+            collider.GetComponent<Player>().Hit();
+            photonV.RPC("DestroyRPC", RpcTarget.AllBuffered);
+        }
+    }
+
     [PunRPC]
-    void DirRPC(int dir) => this.dir = dir;
+    void DirRPC(int dir)
+    {
+        this.dir = dir;
+    }
+
+    [PunRPC]
+    void DestroyRPC()
+    {
+        Destroy(gameObject);
+    }
 }
