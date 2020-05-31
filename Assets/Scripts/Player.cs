@@ -84,6 +84,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     public void Hit()
     {
+        if (health.fillAmount <= 0)
+            return;
+
         health.fillAmount -= 0.1f;
         if (health.fillAmount <= 0)
         {
@@ -110,7 +113,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     void JumpRPC()
     {
         rigid.velocity = Vector2.zero;
-        rigid.AddForce(Vector2.up * 600);
+        rigid.AddForce(Vector2.up * 700);
     }
 
     //Destroy
